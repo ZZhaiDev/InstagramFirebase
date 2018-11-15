@@ -9,7 +9,7 @@
 import UIKit
 import FirebaseAuth
 
-class MainTabBarController: UITabBarController {
+class MainTabBarController: UITabBarController, UITabBarControllerDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -25,9 +25,22 @@ class MainTabBarController: UITabBarController {
         ZJPrint("MainTabBarController----deinit")
     }
     
+    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+        let index = viewControllers?.index(of: viewController)
+        if index == 2{
+            let layout = UICollectionViewFlowLayout()
+            let photoSelectorController = PhotoSelectorController(collectionViewLayout: layout)
+            let nav = UINavigationController(rootViewController: photoSelectorController)
+            self.present(nav, animated: true, completion: nil)
+            return false
+        }
+        return true
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        self.delegate = self
         if Auth.auth().currentUser == nil{
             
             DispatchQueue.main.async {
@@ -77,6 +90,12 @@ class MainTabBarController: UITabBarController {
         
         
         viewControllers = [homeNavVC, searchNavVC, plusNavVC, likeNavVc, userProfileNavVC]
+        
+        guard let items = tabBar.items else{return}
+        for item in items{
+            item.imageInsets = UIEdgeInsets(top: 6, left: 0, bottom: -6, right: 0)
+        }
+        
         
     }
 }
