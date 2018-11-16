@@ -18,18 +18,67 @@ class PhotoSelectorController: UICollectionViewController, UICollectionViewDeleg
     var selectedImage: UIImage?
     var images = [UIImage]()
     var assets = [PHAsset]()
+    var permissionStatus: Bool?
+    
+    lazy var warningLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Please enable Photo"
+        label.font = UIFont.systemFont(ofSize: 15)
+        label.textColor = .black
+        label.backgroundColor = .red
+        return label
+    }()
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        collectionView.backgroundColor = .yellow
-        
         setUpNavigationButtons()
         
+        collectionView.backgroundColor = .white
         collectionView.register(PhoteSelectorCell.self, forCellWithReuseIdentifier: cellId)
         collectionView.register(PhotoSelectorHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerId)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        checkPhotoStatus()
+    }
+    
+    fileprivate func warningUI(){
+        DispatchQueue.main.async {
+            let bgView = UIView()
+            bgView.backgroundColor = .white
+            self.collectionView.addSubview(bgView)
+            self.collectionView.bringSubviewToFront(bgView)
+            bgView.anchor(top: self.collectionView.topAnchor, left: self.collectionView.leftAnchor, bottom: self.collectionView.bottomAnchor, right: self.collectionView.rightAnchor, paddingTop: 0, paddingLeft: 0, paddingBottom: 0, paddingRight: 0, width: 0, height: 0)
+            bgView.addSubview(self.warningLabel)
+            self.warningLabel.centerXAnchor.constraint(equalTo: self.collectionView.centerXAnchor).isActive = true
+            self.warningLabel.anchor(top: self.collectionView.safeAreaLayoutGuide.topAnchor, left: nil, bottom: nil, right: nil, paddingTop: 100, paddingLeft: 0, paddingBottom: 0, paddingRight: 0, width: 200, height: 0)
+        }
         
-        
-        fetchPhotos()
+    }
+    
+    fileprivate func checkPhotoStatus(){
+        let status = PHPhotoLibrary.authorizationStatus()
+        if (status == PHAuthorizationStatus.authorized){
+            permissionStatus = true
+            fetchPhotos()
+        }else if status == PHAuthorizationStatus.denied{
+            print("permission deny")
+            permissionStatus = false
+            warningUI()
+        }else if status == PHAuthorizationStatus.notDetermined{
+            PHPhotoLibrary.requestAuthorization { (newStatus) in
+                if newStatus == PHAuthorizationStatus.authorized{
+                    self.permissionStatus = true
+                    self.fetchPhotos()
+                }else{
+                    self.permissionStatus = false
+                    self.warningUI()
+                }
+            }
+        }
     }
     
     
@@ -90,8 +139,8 @@ class PhotoSelectorController: UICollectionViewController, UICollectionViewDeleg
     var selectedheader: PhotoSelectorHeader?
     override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerId, for: indexPath) as! PhotoSelectorHeader
-//        header.photeImageView.image = self.selectedImage
-         selectedheader = header
+        //        header.photeImageView.image = self.selectedImage
+        selectedheader = header
         //load large image
         if let selectedImage = selectedImage{
             if let index = self.images.index(of: selectedImage){
@@ -126,7 +175,7 @@ class PhotoSelectorController: UICollectionViewController, UICollectionViewDeleg
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! PhoteSelectorCell
         cell.photeImageView.image = images[indexPath.item]
-//        cell.backgroundColor = .red
+        //        cell.backgroundColor = .red
         return cell
     }
     
