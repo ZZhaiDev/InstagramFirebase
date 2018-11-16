@@ -19,4 +19,5 @@
   * SharePhotoController UI
   * Upload shared info to firebase
   * Retrive shared info to UserProfileController
+  * Check PHPhotoLibrary.authorizationStatus()
   
