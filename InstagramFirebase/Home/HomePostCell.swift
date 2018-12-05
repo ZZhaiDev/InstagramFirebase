@@ -68,7 +68,7 @@ class HomePostCell: UICollectionViewCell {
         
         return button
     }()
-    
+    //test
     let commentButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(named: "comment")?.withRenderingMode(.alwaysOriginal), for: .normal)
