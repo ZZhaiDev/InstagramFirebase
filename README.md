@@ -20,4 +20,14 @@
   * Upload shared info to firebase
   * Retrive shared info to UserProfileController
   * Check PHPhotoLibrary.authorizationStatus()
-  
+## 12/15/2018
+  * Rollback github
+  * Customize imageView imageCache
+  * Customize UserProfilePhotoCell
+  * Create Post model
+  * Create firebase class
+  * Date extension
+  * HomeVC UI
+  * HomeVC UI Display data
+  * Notify HomeVC reload data, after AddPhoto
+  * UIRefreshControl
