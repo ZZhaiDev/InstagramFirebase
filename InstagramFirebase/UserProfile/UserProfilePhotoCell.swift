@@ -2,45 +2,25 @@
 //  UserProfilePhotoCell.swift
 //  InstagramFirebase
 //
-//  Created by zijia on 11/15/18.
 //  Copyright © 2018 cognitiveAI. All rights reserved.
 //
 
 import UIKit
-
-class UserProfilePhotoCell: UICollectionViewCell {
+class UserProfilePhotoCell: UICollectionViewCell{
     
     var post: Post?{
         didSet{
-            guard let imageUrl = post?.imageUrl else {return}
-            guard let url = URL(string: imageUrl) else {return}
-            
-            URLSession.shared.dataTask(with: url) { (data, response, err) in
-                if err != nil{
-                    print(err!)
-                    return
-                }
-                
-                if url.absoluteString != self.post?.imageUrl{
-                    return
-                }
-                
-                guard let imageData = data else {return}
-                let photoImage = UIImage(data: imageData)
-                DispatchQueue.main.async {
-                    self.photoImageView.image = photoImage
-                }
-                
-                }.resume()
+            guard let imageUrl = post?.imageUrl else { return }
+            photoImageView.loadImage(urlString: imageUrl)
         }
     }
     
-    let photoImageView: UIImageView = {
-        let imageV = UIImageView()
-        imageV.contentMode = .scaleAspectFill
-        imageV.clipsToBounds = true
-        imageV.backgroundColor = .red
-        return imageV
+    let photoImageView: CustomImageView = {
+        let iv = CustomImageView()
+        iv.contentMode = .scaleAspectFill
+        iv.clipsToBounds = true
+        return iv
+        
     }()
     
     override init(frame: CGRect) {

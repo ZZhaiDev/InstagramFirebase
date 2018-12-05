@@ -19,6 +19,11 @@ class UserProfileController: UICollectionViewController, UICollectionViewDelegat
         super.viewWillAppear(animated)
     }
     
+    deinit {
+        
+    }
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         collectionView.backgroundColor = .white
@@ -26,31 +31,11 @@ class UserProfileController: UICollectionViewController, UICollectionViewDelegat
         self.collectionView.register(UserProfileHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: reuseHeaderIdentifier)
         navigationItem.title = "Home"
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "gear"), style: .plain, target: self, action: #selector(handleLogOut))
+        
         fetchUser()
         
-        fetchPosts()
-        
     }
-    
-    
-    var posts = [Post]()
-    fileprivate func fetchPosts(){
-        guard let uid = Auth.auth().currentUser?.uid else {return}
-        let ref = Database.database().reference().child("posts").child(uid)
-        
-        ref.observe(.value) { (dataSnapshot) in
-            guard let dictionaries = dataSnapshot.value as? [String: Any] else {return}
-            dictionaries.forEach({ (arg0) in
-                let (_, value) = arg0
-                guard let dictionary = value as? [String: Any] else {return}
-                let post = Post(dictionary: dictionary)
-                //                print(post.imageUrl)
-                self.posts.append(post)
-            })
-            
-            self.collectionView.reloadData()
-        }
-    }
+   
     
     @objc fileprivate func handleLogOut(){
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
@@ -83,12 +68,9 @@ class UserProfileController: UICollectionViewController, UICollectionViewDelegat
         // #warning Incomplete implementation, return the number of items
         return posts.count
     }
-    
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! UserProfilePhotoCell
-        
         cell.post = posts[indexPath.item]
-        
         return cell
     }
     
@@ -119,21 +101,27 @@ class UserProfileController: UICollectionViewController, UICollectionViewDelegat
     var user: User?
     fileprivate func fetchUser(){
         guard let uid = Auth.auth().currentUser?.uid else{return}
-        Database.database().reference().child("users").child(uid).observe(.value) { (dataSnapShot) in
-            guard let dictionary = dataSnapShot.value as? [String: Any] else {return}
-            self.user = User(dictionary: dictionary)
+        Database.fetchUserWithUID(uid: uid) { (user) in
+            self.user = user
             self.navigationItem.title = self.user?.username
+            self.collectionView.reloadData()
+            self.fetchOrderedPosts()
+        }
+    }
+    
+    var posts = [Post]()
+    fileprivate func fetchOrderedPosts() {
+        guard let uid = self.user?.uid else{
+            return
+        }
+        let ref = Database.database().reference().child("posts").child(uid)
+        ref.queryOrdered(byChild: "creationDate").observe(.childAdded) { (snapshot) in
+            guard let dictionary = snapshot.value as? [String: Any] else { return }
+            guard let user = self.user else {return }
+            let post = Post(user: user, dictionary: dictionary)
+            self.posts.insert(post, at: 0)
             self.collectionView.reloadData()
         }
     }
 }
 
-struct User{
-    let username: String?
-    let profileImageUrl: String?
-    
-    init(dictionary: [String: Any]) {
-        self.username = dictionary["username"] as? String ?? ""
-        self.profileImageUrl = dictionary["profileImageUrl"] as? String ?? ""
-    }
-}

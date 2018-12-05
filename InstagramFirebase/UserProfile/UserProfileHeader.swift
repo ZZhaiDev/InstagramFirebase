@@ -18,7 +18,7 @@ class UserProfileHeader: UICollectionViewCell {
     }
     
     let profileImageView: UIImageView = {
-       let imageView = UIImageView()
+        let imageView = UIImageView()
         imageView.image = UIImage(named: "profile_selected")
         return imageView
     }()
@@ -47,7 +47,7 @@ class UserProfileHeader: UICollectionViewCell {
         let label = UILabel()
         label.text = "username"
         label.font = UIFont.boldSystemFont(ofSize: 14)
-//        label.textAlignment = .center
+        //        label.textAlignment = .center
         return label
     }()
     
@@ -172,7 +172,7 @@ class UserProfileHeader: UICollectionViewCell {
             }
             
             
-        }.resume()
+            }.resume()
     }
     
     required init?(coder aDecoder: NSCoder) {

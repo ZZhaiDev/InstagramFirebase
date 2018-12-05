@@ -8,8 +8,11 @@
 
 import UIKit
 import Firebase
+import FirebaseStorage
 
 class SharePhotoController: UIViewController {
+    
+    static let updateFeedNotificationName = NSNotification.Name(rawValue: "UpdateFeed")
     
     var selectedImage: UIImage?{
         didSet{
@@ -57,9 +60,7 @@ class SharePhotoController: UIViewController {
         guard let text = textView.text, text.count > 0 else{return}
         guard let image = selectedImage else {return}
         guard let uploadData = image.jpegData(compressionQuality: 0.5) else {return}
-        
         navigationItem.rightBarButtonItem?.isEnabled = false
-        
         let filename = NSUUID().uuidString
         let ref = Storage.storage().reference().child(filename)
         ref.putData(uploadData, metadata: nil) { (metadata, err) in
@@ -98,11 +99,12 @@ class SharePhotoController: UIViewController {
             }
             ZJPrint("saved to database")
             self.dismiss(animated: true, completion: nil)
+            NotificationCenter.default.post(name: SharePhotoController.updateFeedNotificationName, object: nil)
         }
+        
     }
-    
-    
     override var prefersStatusBarHidden: Bool{
         return true
     }
 }
+

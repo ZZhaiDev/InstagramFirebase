@@ -59,8 +59,7 @@ class MainTabBarController: UITabBarController, UITabBarControllerDelegate {
     
     func setupViewControllers(){
         let layout = UICollectionViewFlowLayout()
-        layout.sectionInset = UIEdgeInsets(top: 1, left: 1, bottom: 1, right: 1)
-        let homeVC = UserProfileController(collectionViewLayout: layout)
+        let homeVC = HomeController(collectionViewLayout: layout)
         let homeNavVC = UINavigationController(rootViewController: homeVC)
         homeNavVC.tabBarItem.selectedImage = UIImage(named: "home_selected")
         homeNavVC.tabBarItem.image = UIImage(named: "home_unselected")

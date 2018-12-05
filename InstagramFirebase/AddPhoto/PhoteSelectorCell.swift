@@ -11,7 +11,7 @@ import UIKit
 class PhoteSelectorCell: UICollectionViewCell{
     
     let photeImageView: UIImageView = {
-       let iv = UIImageView()
+        let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.backgroundColor = .lightGray
